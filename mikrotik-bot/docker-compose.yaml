@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  bot-apps:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mikrotik-bot-network
+    restart: unless-stopped
+    volumes:
+      - ./app:/app
+    environment:
+      #akses telegram
+      - BOT_TOKEN=<token bot>
+      - BOT_NAME=<username bot>
+      - BOT_GROUP_ID_1=<grup_id_1>
+      - BOT_GROUP_ID_2=<grup_id_2>
+      - BOT_THREAD_ID_2=<thread_id_group_2>
+      #akses mikrotik
+      - MKT_LOGIN_USER=<user mikrotik>
+      - MKT_LOGIN_PASSKEY=
+      - MKT_LOGIN_PASSWORD=<password>
+      - MKT_LOGIN_PORT=<port>
+    network_mode: host
