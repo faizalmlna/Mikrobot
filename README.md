@@ -10,3 +10,10 @@ Fitur pengecekan di DC dan DRC
 3. pemantauan BGP Interconnect seperti pengecekan established dan status uptime
 4. pengecekan kearah database
 
+saya menggunakan beberapa library Python berikut untuk mempermudah pengembangan:
+1. python-telegram-bot untuk integrasi bot Telegram dan pengiriman notifikasi.
+2. Paramiko untuk melakukan koneksi SSH ke MikroTik.
+3. os untuk manajemen environment dan file system.
+4. Requests untuk HTTP requests, seperti pengambilan data API.
+
+Project ini dikemas menggunakan Docker Compose, sehingga dapat dengan mudah di-deploy di berbagai sistem operasi tanpa mengkhawatirkan ketergantungan library. dengan catatan telah menginstall docker dan docker compose.
