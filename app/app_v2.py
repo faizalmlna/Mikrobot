@@ -31,12 +31,13 @@ from mikrotik_vmware720 import (
 # ======================
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 BOT_USERNAME = os.getenv("BOT_NAME")
-GROUP_ID_1 = os.getenv("BOT_GROUP_ID_1")
-GROUP_ID_2 = os.getenv("BOT_GROUP_ID_2")
+GROUP_ID_1 = int(os.getenv("BOT_GROUP_ID_1"))
+GROUP_ID_2 = int(os.getenv("BOT_GROUP_ID_2"))
+THREAD_ID_1 = int(os.getenv("BOT_THREAD_ID_1"))
 
 router_set = {
     "vmware_720": "172.17.4.1",
-    "vbox": "172.17.4.120",
+    "testing": "172.17.4.120",
     #"neoc" : "172.24.1.1"
 }
 
@@ -305,11 +306,19 @@ async def run_vmware_traffic(update, context):
 
 #=======================================
 
-
 # ======================
-# COMMANDS
+# command /help dan /start
 # ======================
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    chat = update.effective_chat
+    if chat.type in ["group", "supergroup"]:
+        if chat.id not in [GROUP_ID_1, GROUP_ID_2]:
+            await update.message.reply_text(
+                "❌ Maaf group ini tidak diizinkan menggunakan bot."
+            )
+            return
+            
     keyboard = [
         [InlineKeyboardButton(text, callback_data=data)]
         for text, data in CATEGORIES.items()
@@ -320,11 +329,28 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    chat = update.effective_chat
+    thread_id = update.message.message_thread_id
+
+    if chat.type in ["group", "supergroup"]:
+
+        if chat.id == GROUP_ID_1 and thread_id == THREAD_ID_1:
+            pass
+
+        elif chat.id == GROUP_ID_2:
+            pass
+
+        else:
+            await update.message.reply_text(
+                "❌ Group / thread ini tidak diizinkan."
+            )
+            return
+
     await update.message.reply_text(
         HELP_TEXT,
         parse_mode="Markdown"
     )
-
 # ======================
 # BUTTON COMMAND
 # ======================
@@ -397,22 +423,49 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # CHAT COMMAND
 # ======================
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     if not update.message or not update.message.text:
         return
 
-    chat_id = str(update.message.chat_id)
+    chat = update.effective_chat
+    chat_id = chat.id
+    chat_type = chat.type
+    thread_id = update.message.message_thread_id
     text = update.message.text.lower()
 
-    # ===== PRIVATE =====
-    if update.message.chat.type == "private":
+    # ===== FILTER GROUP + THREAD =====
+    if chat_type in ["group", "supergroup"]:
+
+        # group 1 harus di thread tertentu
+        if chat_id == GROUP_ID_1 and thread_id == THREAD_ID_1:
+            pass
+
+        # group 2 bebas thread
+        elif chat_id == GROUP_ID_2:
+            pass
+
+        else:
+            await update.message.reply_text(
+                "❌ Group / thread ini tidak diizinkan menggunakan bot."
+            )
+            return
+
+        # wajib mention bot di group
+        if BOT_USERNAME not in text:
+            return
+    # =========================
+    # PRIVATE CHAT
+    # =========================
+    if chat_type == "private":
+
         if text == "help":
             await update.message.reply_text(
                 HELP_TEXT,
                 parse_mode="Markdown"
-            ) 
+            )
             return
 
-        #============VBOX===========
+        # ===== VBOX =====
         if "internet vbox status" in text:
             await run_vbox_ping(update, context)
             return
@@ -425,7 +478,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await run_vbox_traffic(update, context)
             return
 
-        #================VMWARE===========
+        # ===== VMWARE =====
         if "internet vmware status" in text:
             await run_vmware_ping(update, context)
             return
@@ -437,29 +490,47 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if "traffic monitor vmware" in text:
             await run_vmware_traffic(update, context)
             return
-        
-        
+
         await update.message.reply_text(
             "Perintah tidak dikenali. Ketik `help`.",
             parse_mode="Markdown"
         )
         return
 
+    # =========================
+    # GROUP POLICY
+    # =========================
 
-    # ===== GROUP (MENTION REQUIRED) =====
-    if BOT_USERNAME not in text:
-        return
 
-    if chat_id not in [GROUP_ID_1, GROUP_ID_2]:
-        await update.message.reply_text("❌ Bot tidak aktif di group ini.")
-        return
-
-    # HELP
     if "help" in text:
         await update.message.reply_text(
             HELP_TEXT,
             parse_mode="Markdown"
         )
+        return
+
+    if "internet vbox status" in text:
+        await run_vbox_ping(update, context)
+        return
+
+    if "traceroute vbox" in text:
+        await run_vbox_traceroute(update, context)
+        return
+
+    if "traffic monitor vbox" in text:
+        await run_vbox_traffic(update, context)
+        return
+
+    if "internet vmware status" in text:
+        await run_vmware_ping(update, context)
+        return
+
+    if "traceroute vmware" in text:
+        await run_vmware_traceroute(update, context)
+        return
+
+    if "traffic monitor vmware" in text:
+        await run_vmware_traffic(update, context)
         return
 
 # ======================
@@ -474,7 +545,7 @@ async def error_handler(update, context):
 if __name__ == "__main__":
     app = Application.builder().token(BOT_TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start_command))
+    #app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CallbackQueryHandler(button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))

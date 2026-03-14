@@ -1,7 +1,7 @@
 import paramiko
 
 def create_banner():
-    return "MIKROTIK TESTING"
+    return "MIKROTIK TESTING" # RB Faizal
 
 def execute_ssh_command(hostname, command):
     try:

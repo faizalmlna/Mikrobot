@@ -16,9 +16,9 @@ def execute_ssh_command(hostname, command):
 
         client.connect(
             hostname=hostname,
-            username="s4l4z4r",
-            password="slyth3r1n!",
-            port=2225,
+            username="asdfgh",
+            password="12345",
+            port=555,
         )
 
         stdin, stdout, stderr = client.exec_command(command)

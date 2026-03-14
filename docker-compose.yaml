@@ -14,8 +14,8 @@ services:
       - BOT_TOKEN=8115106524:AAEzQ5-3B5PUsLukvwZ6cehJIqhYQz8zupQ
       - BOT_NAME=@aqbkn_bot
       - BOT_GROUP_ID_1=-1002264090556
-      - BOT_GROUP_ID_2=<grup_id_2>
-      - BOT_THREAD_ID_2=<thread_id_group_2>
+      - BOT_GROUP_ID_2= 11111
+      - BOT_THREAD_ID_1=462
       #akses mikrotik
       #- MKT_LOGIN_USER=admin
       #- MKT_LOGIN_PASSKEY=
